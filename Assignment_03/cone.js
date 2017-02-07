@@ -1,3 +1,4 @@
+var cone = null;
 var gl = null;
 
 function init() {
@@ -12,11 +13,13 @@ function init() {
 
     gl.clearColor( 0.45, 0.25, 0.45, 1.0 );
 
+	cone = new Cone (n)
     render();
 }
 
 function render() {
     gl.clear( gl.COLOR_BUFFER_BIT );
+	cone.render();
 }
 
 window.onload = init;
