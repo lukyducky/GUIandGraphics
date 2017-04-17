@@ -26,19 +26,20 @@
 			uniform vec2 u_resolution;
 			uniform vec2 u_mouse;
 			uniform float u_time;
-			
-			float circle(in vec2 _st, in float _radius){
-				vec2 dist = _st - vec2(0.5);
-				return 1.-smoothstep(_radius-(_radius * 0.01),
-									_radius+(_radius*0.01), 
-									dot(dist,dist)*10.0);
-			}
-									
+								
 									
 			void main() {
-				vec2 st = gl_FragCoord.xy/u_resolution.xy;
+				vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
 				
-				vec3 color = vec3(circle(st, 0.9));
+				float pct = 0.0;
+				float crazy = pct;
+				
+				
+				pct = 1.0 - distance(st, vec2(0.5)); //distance calculates between center and this point defined by vec2
+				//crazy = fract(sin(pct));
+				//crazy = fract(sin(pct));
+				
+				vec3 color = vec3((cos(pct* u_time))); 
 				
 				gl_FragColor = vec4(color, 1.0);
 			}
