@@ -14,8 +14,16 @@
 		<script src="../js/three.js"></script>
 
 		<script id="vertexShader" type="x-shader/x-vertex">
+			attribute vec2 a_texCoord;
+			attribute vec2 a_position
+			varying vec2 v_texCoord;
+			
 			void main() {
+			
+			
+			
 				gl_Position = vec4( position, 1.0 );
+				v_texCoord = a_texCoord;
 			}
 		</script>
 		<script id="fragmentShader" type="x-shader/x-fragment"> //magic happens here yo
@@ -25,23 +33,28 @@
 			
 			uniform vec2 u_resolution;
 			uniform vec2 u_mouse;
+			uniform sampler2D u_image;
 			uniform float u_time;
+			
+			varying vec2 v_texCoord;
 								
 									
 			void main() {
+			/*
 				vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
-				
+				//vec2 st = u_mouse.xy;
 				float pct = 0.0;
-				float crazy = pct;
 				
+				//float4 texColor = text2D(u_texture, st);
 				
 				pct = 1.0 - distance(st, vec2(0.5)); //distance calculates between center and this point defined by vec2
-				//crazy = fract(sin(pct));
-				//crazy = fract(sin(pct));
+				//vec3 color = vec3((sin(pct * u_time)))<= this gone gives good ripples b
 				
-				vec3 color = vec3((cos(pct* u_time))); 
+				vec3 color = vec3((sin(pct* u_time))); */
 				
-				gl_FragColor = vec4(color, 1.0);
+				//gl_FragColor = vec4(color, 1.0);
+				
+				gl_FragColor = texture2D(u_image, v_texCoord);
 			}
 		</script>
 		<script>
@@ -58,14 +71,33 @@
 				camera = new THREE.Camera();
 				camera.position.z = 1;
 
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
 				scene = new THREE.Scene();
-
+				
+				var loader = new THREE.TextureLoader();
+				loader.load('http://i66.tinypic.com/1zn2838.jpg', function (texture){
+				//do something with texture
+				
+				
+				});
+				
+				//THREE.ImageUtils.crossOrigin = '';
+				//var texture = THREE.ImageUtils.loadTexture("http://i66.tinypic.com/1zn2838.jpg", {}, function(){renderer.render(scene);});
+				var texture = new THREE.TextureLoader().load("cone_normal.png");
+				
+				
 				var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
-
+				//var geo2 = new THREE.ConeGeometry(5, 20, 32);
+				
+				////
+				//setting up the shader 
+				///
 				uniforms = {
 					u_time: { type: "f", value: 1.0 },
 					u_resolution: { type: "v2", value: new THREE.Vector2() },
-					u_mouse: { type: "v2", value: new THREE.Vector2() }
+					u_mouse: { type: "v2", value: new THREE.Vector2() },
+					u_image: {type: "t", value: texture}
 				};
 
 				var material = new THREE.ShaderMaterial( {
@@ -74,11 +106,15 @@
 					fragmentShader: document.getElementById( 'fragmentShader' ).textContent
 				} );
 
+				/////
+				//Setting up the scene & stuff in it
+				/////
+				var light = new THREE.AmbientLight(0x404040);
+				scene.add(light);
+				
+				
 				var mesh = new THREE.Mesh( geometry, material );
 				scene.add( mesh );
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
 
 				container.appendChild( renderer.domElement );
 
