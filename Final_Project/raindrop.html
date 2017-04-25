@@ -14,16 +14,14 @@
 		<script src="../js/three.js"></script>
 
 		<script id="vertexShader" type="x-shader/x-vertex">
-			attribute vec2 a_texCoord;
-			attribute vec2 a_position
+			//attribute vec2 a_texCoord;
+			//attribute vec2 a_position;
 			varying vec2 v_texCoord;
 			
 			void main() {
-			
-			
-			
+
 				gl_Position = vec4( position, 1.0 );
-				v_texCoord = a_texCoord;
+				v_texCoord = uv;
 			}
 		</script>
 		<script id="fragmentShader" type="x-shader/x-fragment"> //magic happens here yo
@@ -40,8 +38,7 @@
 								
 									
 			void main() {
-			/*
-				vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
+				/*vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
 				//vec2 st = u_mouse.xy;
 				float pct = 0.0;
 				
@@ -50,9 +47,8 @@
 				pct = 1.0 - distance(st, vec2(0.5)); //distance calculates between center and this point defined by vec2
 				//vec3 color = vec3((sin(pct * u_time)))<= this gone gives good ripples b
 				
-				vec3 color = vec3((sin(pct* u_time))); */
-				
-				//gl_FragColor = vec4(color, 1.0);
+				vec3 color = vec3((sin(pct* u_time * 0.05))); 				
+				gl_FragColor = vec4(color, 1.0);*/
 				
 				gl_FragColor = texture2D(u_image, v_texCoord);
 			}
@@ -64,68 +60,60 @@
 
 			init();
 			animate();
-
+			render();
+			
+			
 			function init() {
-				container = document.getElementById( 'container' );
+				  container = document.getElementById( 'container' );
 
-				camera = new THREE.Camera();
-				camera.position.z = 1;
+            camera = new THREE.Camera();
+            camera.position.z = 1;
 
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
-				scene = new THREE.Scene();
-				
-				var loader = new THREE.TextureLoader();
-				loader.load('http://i66.tinypic.com/1zn2838.jpg', function (texture){
-				//do something with texture
-				
-				
-				});
-				
-				//THREE.ImageUtils.crossOrigin = '';
-				//var texture = THREE.ImageUtils.loadTexture("http://i66.tinypic.com/1zn2838.jpg", {}, function(){renderer.render(scene);});
-				var texture = new THREE.TextureLoader().load("cone_normal.png");
-				
-				
-				var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
-				//var geo2 = new THREE.ConeGeometry(5, 20, 32);
-				
-				////
-				//setting up the shader 
-				///
-				uniforms = {
-					u_time: { type: "f", value: 1.0 },
+            scene = new THREE.Scene();
+
+            var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
+			/*
+            uniforms = {
+                u_time: { type: "f", value: 1.0 },
+                u_resolution: { type: "v2", value: new THREE.Vector2() },
+                u_mouse: { type: "v2", value: new THREE.Vector2() }
+            };
+
+            var material = new THREE.ShaderMaterial( {
+                uniforms: uniforms,
+                vertexShader: document.getElementById( 'vertexShader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+            } );*/
+			var material;
+			var loader = new THREE.TextureLoader();
+			var texture = loader.load("normal_cone.png", function(texture){
+				material = new THREE.ShaderMaterial({
+				uniforms:{
+					u_time:{type: "f", value: 1.0},
 					u_resolution: { type: "v2", value: new THREE.Vector2() },
 					u_mouse: { type: "v2", value: new THREE.Vector2() },
 					u_image: {type: "t", value: texture}
-				};
+					},
+				vertexShader: document.getElementById( 'vertexShader' ).textContent,
+				fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+			}}));
+			
+            var mesh = new THREE.Mesh( geometry, material );
+            scene.add( mesh );
 
-				var material = new THREE.ShaderMaterial( {
-					uniforms: uniforms,
-					vertexShader: document.getElementById( 'vertexShader' ).textContent,
-					fragmentShader: document.getElementById( 'fragmentShader' ).textContent
-				} );
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio( window.devicePixelRatio );
 
-				/////
-				//Setting up the scene & stuff in it
-				/////
-				var light = new THREE.AmbientLight(0x404040);
-				scene.add(light);
-				
-				
-				var mesh = new THREE.Mesh( geometry, material );
-				scene.add( mesh );
+            container.appendChild( renderer.domElement );
 
-				container.appendChild( renderer.domElement );
+			onWindowResize();
+			window.addEventListener( 'resize', onWindowResize, false );
 
-				onWindowResize();
-				window.addEventListener( 'resize', onWindowResize, false );
-
-				document.onmousemove = function(e){
+			document.onmousemove = function(e){
 				  uniforms.u_mouse.value.x = e.pageX
 				  uniforms.u_mouse.value.y = e.pageY
 				}
-			}
+				}//end init
 
 			function onWindowResize( event ) {
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -139,9 +127,11 @@
 			}
 
 			function render() {
-				uniforms.u_time.value += 0.05;
+				uniforms.u_time.value += 0.005;
+				requestAnimationFrame(render);
 				renderer.render( scene, camera );
 			}
+			
 		</script>
 </body>
 </html>
