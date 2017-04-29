@@ -23,8 +23,14 @@
 				gl_Position = vec4( position, 1.0 );
 				v_texCoord = uv;
 			}*/
+			
+			#ifdef GL_ES
+			precision mediump float;
+			#endif
+			
+			
 			varying vec2 vUv;
-			attribute po
+			//attribute position;
 			void main()
 			{
 				vUv = uv;
@@ -42,26 +48,24 @@
 			uniform vec2 u_resolution;
 			//uniform vec2 u_mouse;
 			uniform sampler2D u_image;
-			//uniform float u_time;
+			uniform float u_time;
 			
 			varying vec2 v_texCoord;
 								
 									
 			void main() {
-				//vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
-				//vec2 st = u_mouse.xy;
+				vec2 st = gl_FragCoord.xy/u_resolution.xy; //finding the direct center of the current window
 				float pct = 0.0;
-				
 				//float4 texColor = text2D(u_texture, st);
 				
 				pct = 1.0 - distance(st, vec2(0.5)); //distance calculates between center and this point defined by vec2
 				//vec3 color = vec3((sin(pct * u_time)))<= this gone gives good ripples b
 				
 				vec3 color = vec3((sin(pct* u_time * 0.05))); 				
-				gl_FragColor = vec4(color, 1.0);*/
-				vec4 color = texture2d(u_image, v_texCoord);
+				gl_FragColor = vec4(color, 1.0);
+				/*vec4 color = texture2d(u_image, v_texCoord);
 				//vec4 color = vec4(.25, .25, .25, .25);
-				gl_FragColor = color;
+				gl_FragColor = color;*/
 			}
 		</script>
 		<script>
@@ -83,17 +87,15 @@
 				camera.position.z = 1;
 				
 				
-
-				document.container.appendChild( renderer.domElement );
 								
 				var loader = new THREE.TextureLoader();
 
-				var texture = loader.load('normal_cone.png');
+				var texture = loader.load('cone_normal.png');
 				
 				uniforms = {
-					//u_time:{type: 'f', value: 1.0},
+					u_time:{type: 'f', value: 1.0},
 					u_resolution: { type: 'v2', value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-					//u_mouse: { type: 'v2', value: new THREE.Vector2() },
+					u_mouse: { type: 'v2', value: new THREE.Vector2() },
 					u_image: {type: 't', value: texture},
 					};
 				
@@ -110,16 +112,17 @@
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
-
-				onWindowResize();
-				window.addEventListener( 'resize', onWindowResize, false );
+				document.body.appendChild( renderer.domElement );
+				
+				//onWindowResize();
+				//window.addEventListener( 'resize', onWindowResize, false );
 
 				document.onmousemove = function(e){
 					  uniforms.u_mouse.value.x = e.pageX
 					  uniforms.u_mouse.value.y = e.pageY
 					};
 				}//end init
-
+		/*
 			function onWindowResize( event ) {
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				uniforms.u_resolution.value.x = renderer.innderWidth;
@@ -127,7 +130,7 @@
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				
-			}
+			}*/
 
 			function animate() {
 				requestAnimationFrame( animate );
