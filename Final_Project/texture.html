@@ -22,6 +22,7 @@
 			void main(){
 				vec2 pixel = gl_FragCoord.xy/u_res.xy;
 				vec4 color = texture2D(u_tex, pixel);
+				vec4 blue = vec4(0.0, 0.15, 0.23, 1.0);
 				
 				float dist = distance(gl_FragCoord.xy, u_light.xy);
 				
@@ -34,14 +35,13 @@
 				normVect = normalize(normVect);
 				vec3 lightVect = normalize(vec3(u_light.x - gl_FragCoord.x, u_light.y - gl_FragCoord.y, lightHeight));
 				
-				//float time = fract(u_time);
 				/////
 				//RIPPLES
 				/////
 				//vec4 newColor = vec4((sin(color  *u_time))  * (color)); //ripple with fade
 				//vec4 newColor = abs(sin(color  * u_time))  * (color);
 				//vec4 newColor = (sin(20.0*color + u_time))* (color); //FINALLY IT WORKS
-				vec4 newColor = (sin((7.0*color) + u_time)) * (color); //FINALLY IT WORKS
+				vec4 newColor = abs(sin(((8.14 * color) + (.75 * u_time)))) * (.75 * color); //FINALLY IT WORKS
 				
 				//vec4 newColor = vec4((sin(color * time))*color);
 				/*
