@@ -24,15 +24,31 @@
 				vec4 color = texture2D(u_tex, pixel);
 				
 				float dist = distance(gl_FragCoord.xy, u_light.xy);
-				float gradientLight = 1.0 - dist/(u_light.z * u_res.x);
-
 				
+				float lightHeight = 30.0;
 				
-				//vec4 newColor = vec4(cos(color  *u_time ) * color); //ripple with fade
+				//getting normal mapping down
+				vec3 normVect = texture2D(u_norm, pixel).xyz;
+				normVect.x -= 0.5;
+				normVect.y -= 0.5;
+				normVect = normalize(normVect);
+				vec3 lightVect = normalize(vec3(u_light.x - gl_FragCoord.x, u_light.y - gl_FragCoord.y, lightHeight));
 				
+				//float time = fract(u_time);
+				/////
+				//RIPPLES
+				/////
+				//vec4 newColor = vec4((sin(color  *u_time))  * (color)); //ripple with fade
+				//vec4 newColor = abs(sin(color  * u_time))  * (color);
+				//vec4 newColor = (sin(20.0*color + u_time))* (color); //FINALLY IT WORKS
+				vec4 newColor = (sin((7.0*color) + u_time)) * (color); //FINALLY IT WORKS
+				
+				//vec4 newColor = vec4((sin(color * time))*color);
 				/*
 				if (u_light.z * u_res.x > dist){
-					gl_FragColor = newColor * gradientLight;
+					float diffuse = max(dot(normVect, lightVect), 0.0);
+					float gradientLight = 1.0 - dist/(u_light.z * u_res.x);
+					gl_FragColor = newColor * gradientLight * diffuse;
 				}
 				else{
 					gl_FragColor = vec4(0.0);
@@ -61,21 +77,21 @@
 		scene_setup();
 
 		var loader = new THREE.TextureLoader();
-		var texture = loader.load('RadialGradient.png');
-		var normal = loader.load('cone.png');
+		var texture = loader.load('rain_gradient.png');
+		var normal = loader.load('cone_normal.png');
 		/*texture.wrapS = THREE.RepeatWrapping;
 		texture.wrapT = THREE.RepeatWrapping;
 		texture.repeat.set(4, 4);*/
 
 		var uniforms = {
 			u_light: {type: 'v3', value: new THREE.Vector3()},
-			u_time:{type: 'f', value: 1.0},
+			u_time:	{type: 'f', value: 1.0},
 			u_tex : {type:'t',value:texture},//The texture
 			u_norm: {type: 't', value: normal},
 			u_res : {type: 'v2',value:new THREE.Vector2(window.innerWidth,window.innerHeight)}//Keeps the resolution
 		}
 		
-		uniforms.u_light.value.z = 0.2; //radius
+		uniforms.u_light.value.z = 1.5; //radius
 
 		
 		//shader onto a 2d plane big enough to fill the screen
